@@ -1,6 +1,7 @@
-package logging
+package logging_test
 
 import (
+	"github.com/entur/go-logging"
 	"github.com/rs/zerolog"
 )
 
@@ -15,11 +16,11 @@ func Example() {
 	w.NoColor = true
 	w.PartsExclude = []string{"timestamp"}
 
-	logger := New(WithWriter(w))
+	logger := logging.New(logging.WithWriter(w))
 	logger.Info().Msg("Hello!")
 
 	// Logger with custom writer and level
-	logger = New(WithWriter(w), WithLevel(zerolog.WarnLevel))
+	logger = logging.New(logging.WithWriter(w), logging.WithLevel(zerolog.WarnLevel))
 	logger.Info().Msg("Hello!")
 
 	// Output:
