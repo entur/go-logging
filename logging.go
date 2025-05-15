@@ -52,8 +52,8 @@ func init() {
 }
 
 type Config struct {
-	w          io.Writer
-	level      *zerolog.Level
+	w     io.Writer
+	level *zerolog.Level
 }
 
 type Option func(*Config)
