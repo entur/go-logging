@@ -54,7 +54,6 @@ func init() {
 type Config struct {
 	w          io.Writer
 	level      *zerolog.Level
-	stackTrace bool
 }
 
 type Option func(*Config)
