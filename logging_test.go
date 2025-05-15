@@ -7,12 +7,12 @@ import (
 
 func Example() {
 	// Default logger
-	// logger := New()
+	// logger := logging.New()
 	// err := fmt.Errorf("oh no, an error")
 	// logger.Error().Err(err).Msg("An internal error occurred")
 
 	// Logger with stacktraced error
-	// logger := New()
+	// logger := logging.New()
 	// err := fmt.Errorf("oh no, an error")
 	// logger.Error().Stack().Err(logging.NewStackTraceError(" error")).Msg("An internal error occurred!")
 
