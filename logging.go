@@ -13,15 +13,15 @@ import (
 func init() {
 	// Configure zerolog for GCP logging
 	zerolog.LevelFieldName = "severity"
-	zerolog.LevelWarnValue = "WARNING"
+	zerolog.LevelWarnValue = "warning"
 	zerolog.TimestampFieldName = "timestamp"
 	zerolog.TimeFieldFormat = time.RFC3339Nano
+	zerolog.ErrorStackMarshaler = marshalStack
 
 	// Set log level
 	level := os.Getenv("LOG_LEVEL")
 	if level == "" {
-		// If no default LOG_LEVEL value is set, try to derive it
-		// from our runtime environment.
+		// If no default LOG_LEVEL value is set, try to derive it from our runtime environment.
 		// * See ADR https://enturas.atlassian.net/wiki/spaces/eat/pages/5318344894/2022-10-31+All+services+must+have+a+balanced+log+level
 		// * See COMMON_ENV in Helm Chart https://github.com/entur/helm-charts
 		env := os.Getenv("COMMON_ENV")
@@ -52,8 +52,9 @@ func init() {
 }
 
 type Config struct {
-	w io.Writer
-	level *zerolog.Level
+	w          io.Writer
+	level      *zerolog.Level
+	stackTrace bool
 }
 
 type Option func(*Config)
