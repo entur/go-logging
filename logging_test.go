@@ -7,9 +7,14 @@ import (
 
 func Example() {
 	// Default logger
-	//logger := New()
-	//err := fmt.Errorf("oh no, an error")
-	//logger.Error().Err(err).Msg("An internal error occured")
+	// logger := logging.New()
+	// err := fmt.Errorf("oh no, an error")
+	// logger.Error().Err(err).Msg("An internal error occurred")
+
+	// Logger with stacktraced error
+	// logger := logging.New()
+	// err := fmt.Errorf("oh no, an error")
+	// logger.Error().Stack().Err(logging.NewStackTraceError(" error")).Msg("An internal error occurred!")
 
 	// Logger with custom writer
 	w := zerolog.NewConsoleWriter()
@@ -21,7 +26,7 @@ func Example() {
 
 	// Logger with custom writer and level
 	logger = logging.New(logging.WithWriter(w), logging.WithLevel(zerolog.WarnLevel))
-	logger.Info().Msg("Hello!")
+	logger.Info().Msg("Hello 2!")
 
 	// Output:
 	// INF Hello!
