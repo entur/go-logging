@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/entur/go-logging/compare/v1.1.0...v1.2.0) (2025-05-15)
+
+
+### Features
+
+* Added support for zerolog stacktraces ([#7](https://github.com/entur/go-logging/issues/7)) ([eb3481b](https://github.com/entur/go-logging/commit/eb3481be3b8113dbf530bfca78f5ad6ffc6553b3))
+
 ## [1.1.0](https://github.com/entur/go-logging/compare/v1.0.0...v1.1.0) (2025-05-14)
 
 
