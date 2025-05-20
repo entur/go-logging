@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/entur/go-logging/compare/v1.2.0...v1.3.0) (2025-05-20)
+
+
+### Features
+
+* global logging ([#10](https://github.com/entur/go-logging/issues/10)) ([d27e803](https://github.com/entur/go-logging/commit/d27e803711eb2b7ec8009d4c3de49cfb55bbe434))
+
 ## [1.2.0](https://github.com/entur/go-logging/compare/v1.1.0...v1.2.0) (2025-05-15)
 
 
