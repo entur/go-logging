@@ -38,6 +38,8 @@ func init() {
 	switch strings.ToLower(level) {
 	case "fatal":
 		zerolog.SetGlobalLevel(zerolog.FatalLevel)
+	case "panic":
+		zerolog.SetGlobalLevel(zerolog.PanicLevel)
 	case "error":
 		zerolog.SetGlobalLevel(zerolog.ErrorLevel)
 	case "warning":
@@ -49,6 +51,34 @@ func init() {
 	default:
 		zerolog.SetGlobalLevel(zerolog.TraceLevel)
 	}
+}
+
+func Fatal() *zerolog.Event {
+	return log.Logger.Fatal()
+}
+
+func Panic() *zerolog.Event {
+	return log.Logger.Panic()
+}
+
+func Error() *zerolog.Event {
+	return log.Logger.Error()
+}
+
+func Warn() *zerolog.Event {
+	return log.Logger.Warn()
+}
+
+func Info() *zerolog.Event {
+	return log.Logger.Info()
+}
+
+func Debug() *zerolog.Event {
+	return log.Logger.Debug()
+}
+
+func Trace() *zerolog.Event {
+	return log.Logger.Trace()
 }
 
 type Config struct {
