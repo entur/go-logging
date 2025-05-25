@@ -2,7 +2,6 @@ package logging_test
 
 import (
 	"github.com/entur/go-logging"
-	"github.com/rs/zerolog"
 )
 
 func Example() {
@@ -20,15 +19,13 @@ func Example() {
 	// logger.Error().Stack().Err(err).Msg("An internal error occurred!")
 
 	// Child logger with custom writer
-	w := zerolog.NewConsoleWriter()
-	w.NoColor = true
-	w.PartsExclude = []string{"timestamp"}
+	w := logging.NewConsoleWriter(logging.WithNoColor(), logging.WithNoTimestamp())
 
 	logger := logging.New(logging.WithWriter(w))
 	logger.Info().Msg("Hello from my new child logger!")
 
 	// Child logger with custom writer and level which won't be logged
-	logger = logging.New(logging.WithWriter(w), logging.WithLevel(zerolog.WarnLevel))
+	logger = logging.New(logging.WithWriter(w), logging.WithLevel(logging.WarnLevel))
 	logger.Info().Msg("Hello from my new custom child logger!")
 
 	// Output:
