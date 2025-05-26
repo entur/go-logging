@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0](https://github.com/entur/go-logging/compare/v1.3.0...v1.4.0) (2025-05-26)
+
+
+### Features
+
+* Added simple console writer, more options, level and ctx alias, multiple writer support ([337d14d](https://github.com/entur/go-logging/commit/337d14d51284d082d475d1e3858f42dfd7e0571c))
+* Updated options and deps, added simple console writer and more aliases ([#13](https://github.com/entur/go-logging/issues/13)) ([337d14d](https://github.com/entur/go-logging/commit/337d14d51284d082d475d1e3858f42dfd7e0571c))
+
 ## [1.3.0](https://github.com/entur/go-logging/compare/v1.2.0...v1.3.0) (2025-05-20)
 
 
