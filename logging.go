@@ -10,6 +10,26 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var (
+	// Functions
+	Fatal = log.Fatal
+	Panic = log.Panic
+	Error = log.Error
+	Warn  = log.Warn
+	Info  = log.Info
+	Debug = log.Debug
+	Trace = log.Trace
+	Ctx   = zerolog.Ctx
+	// Levels
+	FatalLevel = zerolog.FatalLevel
+	PanicLevel = zerolog.PanicLevel
+	ErrorLevel = zerolog.ErrorLevel
+	WarnLevel  = zerolog.WarnLevel
+	InfoLevel  = zerolog.InfoLevel
+	DebugLevel = zerolog.DebugLevel
+	TraceLevel = zerolog.TraceLevel
+)
+
 func init() {
 	// Configure zerolog for GCP logging
 	zerolog.LevelFieldName = "severity"
@@ -37,60 +57,65 @@ func init() {
 
 	switch strings.ToLower(level) {
 	case "fatal":
-		zerolog.SetGlobalLevel(zerolog.FatalLevel)
+		zerolog.SetGlobalLevel(FatalLevel)
 	case "panic":
-		zerolog.SetGlobalLevel(zerolog.PanicLevel)
+		zerolog.SetGlobalLevel(PanicLevel)
 	case "error":
-		zerolog.SetGlobalLevel(zerolog.ErrorLevel)
+		zerolog.SetGlobalLevel(ErrorLevel)
 	case "warning":
-		zerolog.SetGlobalLevel(zerolog.WarnLevel)
+		zerolog.SetGlobalLevel(WarnLevel)
 	case "info":
-		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+		zerolog.SetGlobalLevel(InfoLevel)
 	case "debug":
-		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+		zerolog.SetGlobalLevel(DebugLevel)
 	default:
-		zerolog.SetGlobalLevel(zerolog.TraceLevel)
+		zerolog.SetGlobalLevel(TraceLevel)
 	}
 }
 
-func Fatal() *zerolog.Event {
-	return log.Logger.Fatal()
-}
-
-func Panic() *zerolog.Event {
-	return log.Logger.Panic()
-}
-
-func Error() *zerolog.Event {
-	return log.Logger.Error()
-}
-
-func Warn() *zerolog.Event {
-	return log.Logger.Warn()
-}
-
-func Info() *zerolog.Event {
-	return log.Logger.Info()
-}
-
-func Debug() *zerolog.Event {
-	return log.Logger.Debug()
-}
-
-func Trace() *zerolog.Event {
-	return log.Logger.Trace()
-}
-
 type Config struct {
-	w     io.Writer
-	level *zerolog.Level
+	w           io.Writer
+	level       *zerolog.Level
+	noTimestamp bool
+	// ConsoleWriter
+	noColor       bool
+	fieldsExclude []string
 }
 
 type Option func(*Config)
 
-func WithWriter(w io.Writer) Option {
+func WithWriter(writers ...io.Writer) Option {
+	var w io.Writer
+
+	num := len(writers)
+	if num > 0 {
+		if num > 1 {
+			w = zerolog.MultiLevelWriter(writers...)
+		} else {
+			w = writers[0]
+		}
+	}
+
 	return func(c *Config) {
 		c.w = w
+	}
+}
+
+func WithNoTimestamp() Option {
+	return func(c *Config) {
+		c.noTimestamp = true
+	}
+}
+
+func WithNoColor() Option {
+	return func(c *Config) {
+		c.noColor = true
+	}
+}
+
+func WithExcludeFields(fields ...string) Option {
+	return func(c *Config) {
+		c.fieldsExclude = fields
 	}
 }
 
@@ -100,19 +125,47 @@ func WithLevel(level zerolog.Level) Option {
 	}
 }
 
-func New(options ...Option) zerolog.Logger {
+func New(opts ...Option) zerolog.Logger {
 	cfg := &Config{}
-	for _, opt := range options {
+	for _, opt := range opts {
 		opt(cfg)
 	}
 
-	logger := log.Logger
-	if cfg.w != nil {
-		logger = log.Output(cfg.w)
+	w := cfg.w
+	if w == nil {
+		w = os.Stderr
 	}
+
+	ctx := zerolog.New(w).With()
+	if !cfg.noTimestamp {
+		ctx = ctx.Timestamp()
+	}
+
+	logger := ctx.Logger()
 	if cfg.level != nil {
 		logger = logger.Level(*cfg.level)
 	}
 
-	return logger.With().Logger()
+	return logger
+}
+
+func NewConsoleWriter(opts ...Option) zerolog.ConsoleWriter {
+	cfg := &Config{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
+	f := func(w *zerolog.ConsoleWriter) {
+		w.NoColor = cfg.noColor
+
+		if cfg.noTimestamp {
+			w.PartsExclude = []string{"timestamp"}
+		}
+
+		if len(cfg.fieldsExclude) > 0 {
+			w.FieldsExclude = cfg.fieldsExclude
+		}
+	}
+
+	return zerolog.NewConsoleWriter(f)
 }
