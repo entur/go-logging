@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0](https://github.com/entur/go-logging/compare/v1.4.0...v1.5.0) (2025-05-28)
+
+
+### Features
+
+* Added slog handler ([#15](https://github.com/entur/go-logging/issues/15)) ([f9c5e82](https://github.com/entur/go-logging/commit/f9c5e829ae5db9f7a5206c08b6b0cfd20ac86ea0))
+* stacktrace joinederr support ([#16](https://github.com/entur/go-logging/issues/16)) ([359a6a4](https://github.com/entur/go-logging/commit/359a6a4650d2ba2e3d871d7b93fa9578ffe247b4))
+
 ## [1.4.0](https://github.com/entur/go-logging/compare/v1.3.0...v1.4.0) (2025-05-26)
 
 
