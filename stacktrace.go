@@ -3,7 +3,6 @@ package logging
 import (
 	"errors"
 	"fmt"
-	"reflect"
 	"runtime"
 	"strings"
 )
@@ -79,12 +78,9 @@ type joinError interface {
 func joinedErrs(err error) []error {
 	var errs []error
 
-	t := reflect.TypeOf(err)
-	if t.Kind().String() == "ptr" && t.String() == "*errors.joinError" {
-		joinErr, ok := err.(joinError)
-		if ok {
-			errs = joinErr.Unwrap()
-		}
+	joinErr, ok := err.(joinError)
+	if ok {
+		errs = joinErr.Unwrap()
 	}
 
 	return errs
