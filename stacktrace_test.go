@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -39,7 +40,7 @@ func TestNewStack(t *testing.T) {
 				frameN: 0,
 				file:   "/stacktrace_test.go",
 				name:   "func1",
-				line:   26,
+				line:   27,
 			},
 		},
 		{
@@ -49,7 +50,7 @@ func TestNewStack(t *testing.T) {
 				frameN: 1,
 				file:   "/stacktrace_test.go",
 				name:   "func2",
-				line:   31,
+				line:   32,
 			},
 		},
 	}
@@ -93,7 +94,7 @@ func TestNewStack(t *testing.T) {
 }
 
 func TestMarshalStack(t *testing.T) {
-	type Expected = []map[string]string
+	type Expected = []stackInfo
 
 	type Test struct {
 		title      string
@@ -110,22 +111,60 @@ func TestMarshalStack(t *testing.T) {
 		{
 			title:      "empty stacktrace error",
 			stacktrace: StackTraceError{},
-			expected:   []map[string]string{},
+			expected:   []stackInfo{},
 		},
 		{
 			title:      "valid stacktrace error",
 			stacktrace: NewStackTraceError("valid error"),
-			expected: []map[string]string{
-				{
-					"file":     "/stacktrace_test.go",
-					"function": "TestMarshalStack",
-					"line":     "117",
+			expected: []stackInfo{
+				[]frameInfo{
+					{
+						"file":     "/stacktrace_test.go",
+						"function": "TestMarshalStack",
+						"line":     "118",
+					},
+					{
+						"function": "tRunner",
+					},
+					{
+						"function": "goexit",
+					},
 				},
-				{
-					"function": "tRunner",
+			},
+		},
+		{
+			title: "joined stacktrace errors",
+			stacktrace: errors.Join(
+				NewStackTraceError("valid error 1"),
+				fmt.Errorf("wrong error"),
+				NewStackTraceError("valid error 2"),
+			),
+			expected: []stackInfo{
+				[]frameInfo{
+					{
+						"file":     "/stacktrace_test.go",
+						"function": "TestMarshalStack",
+						"line":     "138",
+					},
+					{
+						"function": "tRunner",
+					},
+					{
+						"function": "goexit",
+					},
 				},
-				{
-					"function": "goexit",
+				[]frameInfo{
+					{
+						"file":     "/stacktrace_test.go",
+						"function": "TestMarshalStack",
+						"line":     "140",
+					},
+					{
+						"function": "tRunner",
+					},
+					{
+						"function": "goexit",
+					},
 				},
 			},
 		},
@@ -142,28 +181,35 @@ func TestMarshalStack(t *testing.T) {
 					t.Fatalf("marshalled result value is incorrect\ngot: %+v\nwant: nil", data)
 				}
 			} else {
-				info, ok := data.([]map[string]string)
+				stackInfos, ok := data.([]stackInfo)
 				if !ok {
-					t.Fatalf("marshalled result is of the wrong type\ngot: %v\nwant: []map[string]string", reflect.TypeOf(data))
+					t.Fatalf("marshalled result is of the wrong type\ngot: %v\nwant: [][]map[string]string", reflect.TypeOf(data))
 				}
-				if len(tmp.expected) != len(info) {
-					t.Fatalf("stack info has incorrect length\ngot: %d\nwant: %d", len(info), len(tmp.expected))
+				if len(tmp.expected) != len(stackInfos) {
+					t.Fatalf("stackInfo array has incorrect length\ngot: %d\nwant: %d", len(stackInfos), len(tmp.expected))
 				}
 
-				for i, frameInfo := range info {
-					expect := tmp.expected[i]["file"]
-					if expect != "" && !strings.HasSuffix(frameInfo["file"], expect) {
-						t.Errorf("frame info has incorrect file name suffix\ngot: %s\nwant: %s", frameInfo["file"], expect)
+				for i, info := range stackInfos {
+					expectInfo := tmp.expected[i]
+					if len(expectInfo) != len(info) {
+						t.Fatalf("stackInfo %d has incorrect length\ngot: %d\nwant: %d", i, len(info), len(expectInfo))
 					}
 
-					expect = tmp.expected[i]["line"]
-					if expect != "" && expect != frameInfo["line"] {
-						t.Errorf("frame info has incorrect call line number\ngot: %s\nwant: %s", frameInfo["line"], expect)
-					}
+					for j, frameInfo := range info {
+						expect := expectInfo[j]["file"]
+						if expect != "" && !strings.HasSuffix(frameInfo["file"], expect) {
+							t.Errorf("frameInfo has incorrect file name suffix\ngot: %s\nwant: %s", frameInfo["file"], expect)
+						}
 
-					expect = tmp.expected[i]["function"]
-					if expect != "" && expect != frameInfo["function"] {
-						t.Errorf("frame info has incorrect function name\ngot: %s\nwant: %s", frameInfo["function"], expect)
+						expect = expectInfo[j]["line"]
+						if expect != "" && expect != frameInfo["line"] {
+							t.Errorf("frameInfo has incorrect call line number\ngot: %s\nwant: %s", frameInfo["line"], expect)
+						}
+
+						expect = expectInfo[j]["function"]
+						if expect != "" && expect != frameInfo["function"] {
+							t.Errorf("frameInfo has incorrect function name\ngot: %s\nwant: %s", frameInfo["function"], expect)
+						}
 					}
 				}
 			}

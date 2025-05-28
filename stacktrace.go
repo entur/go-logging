@@ -69,29 +69,71 @@ func NewStackTraceError(format string, a ...any) error {
 	}
 }
 
+// See https://cs.opensource.google/go/go/+/master:src/errors/join.go;l=53
+type joinError interface {
+	Unwrap() []error
+}
+
+// Extract the underlying error array from joined errors
+func joinedErrs(err error) []error {
+	var errs []error
+
+	joinErr, ok := err.(joinError)
+	if ok {
+		errs = joinErr.Unwrap()
+	}
+
+	return errs
+}
+
+type frameInfo = map[string]string
+
+type stackInfo = []frameInfo
+
 func marshalStack(err error) interface{} {
 	var stErr StackTraceError
 	if !errors.As(err, &stErr) {
 		return nil
 	}
 
-	info := make([]map[string]string, 0)
-	stack := stErr.Stack
-	for _, frame := range stack.Frames {
-		file := frame.File
-		line := frame.Line
-		name := frame.Func.Name()
-		i := strings.LastIndex(name, ".")
-		if i != -1 {
-			name = name[i+1:]
-		}
-
-		info = append(info, map[string]string{
-			"file":     file,
-			"function": name,
-			"line":     fmt.Sprintf("%d", line),
-		})
+	errs := joinedErrs(err)
+	num := len(errs)
+	if num < 1 {
+		errs = []error{stErr}
 	}
 
-	return info
+	stackInfos := make([]stackInfo, 0, num)
+	for i := range errs {
+		err = errs[i]
+		if !errors.As(err, &stErr) {
+			continue
+		}
+
+		frames := stErr.Stack.Frames
+		num = len(frames)
+		if num < 1 {
+			continue
+		}
+
+		info := make(stackInfo, num)
+		for j, frame := range frames {
+			file := frame.File
+			line := frame.Line
+			name := frame.Func.Name()
+			i := strings.LastIndex(name, ".")
+			if i != -1 {
+				name = name[i+1:]
+			}
+
+			info[j] = frameInfo{
+				"file":     file,
+				"function": name,
+				"line":     fmt.Sprintf("%d", line),
+			}
+		}
+
+		stackInfos = append(stackInfos, info)
+	}
+
+	return stackInfos
 }
