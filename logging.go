@@ -2,6 +2,7 @@ package logging
 
 import (
 	"io"
+	"log/slog"
 	"os"
 	"strings"
 	"time"
@@ -28,6 +29,8 @@ var (
 	InfoLevel  = zerolog.InfoLevel
 	DebugLevel = zerolog.DebugLevel
 	TraceLevel = zerolog.TraceLevel
+	NoLevel    = zerolog.NoLevel
+	Disabled   = zerolog.Disabled
 )
 
 func init() {
@@ -168,4 +171,27 @@ func NewConsoleWriter(opts ...Option) zerolog.ConsoleWriter {
 	}
 
 	return zerolog.NewConsoleWriter(f)
+}
+
+func NewSlogHandler(opts ...Option) slog.Handler {
+	cfg := &Config{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
+	w := cfg.w
+	if w == nil {
+		w = os.Stderr
+	}
+
+	logger := zerolog.New(w)
+	if cfg.level != nil {
+		logger = logger.Level(*cfg.level)
+	}
+
+	return &SLogHandler{
+		logger:      &logger,
+		level:       levelZlogToSlog(logger.GetLevel()),
+		noTimestamp: cfg.noTimestamp,
+	}
 }
