@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -33,7 +34,27 @@ var (
 	Disabled   = zerolog.Disabled
 )
 
+func setLevel(level string) {
+	switch strings.ToLower(level) {
+	case "fatal":
+		zerolog.SetGlobalLevel(FatalLevel)
+	case "panic":
+		zerolog.SetGlobalLevel(PanicLevel)
+	case "error":
+		zerolog.SetGlobalLevel(ErrorLevel)
+	case "warning":
+		zerolog.SetGlobalLevel(WarnLevel)
+	case "info":
+		zerolog.SetGlobalLevel(InfoLevel)
+	case "debug":
+		zerolog.SetGlobalLevel(DebugLevel)
+	default:
+		zerolog.SetGlobalLevel(TraceLevel)
+	}
+}
+
 func init() {
+	fmt.Println("INIT INIT INIT")
 	// Configure zerolog for GCP logging
 	zerolog.LevelFieldName = "severity"
 	zerolog.LevelWarnValue = "warning"
@@ -58,22 +79,7 @@ func init() {
 		}
 	}
 
-	switch strings.ToLower(level) {
-	case "fatal":
-		zerolog.SetGlobalLevel(FatalLevel)
-	case "panic":
-		zerolog.SetGlobalLevel(PanicLevel)
-	case "error":
-		zerolog.SetGlobalLevel(ErrorLevel)
-	case "warning":
-		zerolog.SetGlobalLevel(WarnLevel)
-	case "info":
-		zerolog.SetGlobalLevel(InfoLevel)
-	case "debug":
-		zerolog.SetGlobalLevel(DebugLevel)
-	default:
-		zerolog.SetGlobalLevel(TraceLevel)
-	}
+	setLevel(level)
 }
 
 type Config struct {

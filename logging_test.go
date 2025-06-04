@@ -23,7 +23,7 @@ func Example() {
 	// Child logger with custom writer
 	w := logging.NewConsoleWriter(logging.WithNoColor(), logging.WithNoTimestamp())
 
-	logger := logging.New(logging.WithWriter(w))
+	logger := logging.New(logging.WithWriter(w), logging.WithLevel(logging.InfoLevel))
 	logger.Info().Msg("Hello from my new child logger!")
 
 	// Child logger with custom writer and level which won't be logged
@@ -39,7 +39,7 @@ func Example() {
 		slog.String("some_string", "huh"),
 		slog.Group("some_group",
 			slog.Int("some_nested_int", 3),
-			slog.Group("some_nested_group", 
+			slog.Group("some_nested_group",
 				slog.Float64("some_nested_nested_float", 100.0),
 			),
 		),

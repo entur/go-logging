@@ -65,6 +65,10 @@ func TestNewStack(t *testing.T) {
 				t.Fatalf("specified frameN is not within valid stack frame range\ngot: %d\nwant: <%d", len(stack.Frames), tmp.expected.frameN)
 			}
 
+			if stack.String() == "" {
+				t.Error("StackTrace string must generate string")
+			}
+
 			frame := stack.Frames[tmp.expected.frameN]
 
 			file := frame.File
@@ -121,7 +125,7 @@ func TestMarshalStack(t *testing.T) {
 					{
 						"file":     "/stacktrace_test.go",
 						"function": "TestMarshalStack",
-						"line":     "118",
+						"line":     "122",
 					},
 					{
 						"function": "tRunner",
@@ -144,7 +148,7 @@ func TestMarshalStack(t *testing.T) {
 					{
 						"file":     "/stacktrace_test.go",
 						"function": "TestMarshalStack",
-						"line":     "138",
+						"line":     "142",
 					},
 					{
 						"function": "tRunner",
@@ -157,7 +161,7 @@ func TestMarshalStack(t *testing.T) {
 					{
 						"file":     "/stacktrace_test.go",
 						"function": "TestMarshalStack",
-						"line":     "140",
+						"line":     "144",
 					},
 					{
 						"function": "tRunner",
