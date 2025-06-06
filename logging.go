@@ -54,7 +54,6 @@ func setLevel(level string) {
 }
 
 func init() {
-	fmt.Println("INIT INIT INIT")
 	// Configure zerolog for GCP logging
 	zerolog.LevelFieldName = "severity"
 	zerolog.LevelWarnValue = "warning"
