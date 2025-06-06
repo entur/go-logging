@@ -15,9 +15,9 @@ func TestZtoS(t *testing.T) {
 		slog.LevelInfo:  zerolog.InfoLevel,
 	}
 
-	for zlevel, slevel := range levels {
-		if zlevel != levelZlogToSlog(slevel) {
-			t.Errorf("%s must become %s", slevel, zlevel)
+	for slevel, zlevel := range levels {
+		if level := levelZlogToSlog(zlevel); level != slevel {
+			t.Errorf("failure mapping zerolog %s to slog\ngot: %s\nwant: %s", zlevel, level, slevel)
 		}
 	}
 }
@@ -30,8 +30,8 @@ func TestStoZ(t *testing.T) {
 	}
 
 	for zlevel, slevel := range levels {
-		if zlevel != levelSlogToZlog(slevel) {
-			t.Errorf("%s must become %s", slevel, zlevel)
+		if level := levelSlogToZlog(slevel); level != zlevel {
+			t.Errorf("failure mapping slog %s to zerolog\ngot: %s\nwant: %s", slevel, level, zlevel)
 		}
 	}
 }
