@@ -18,9 +18,9 @@ func levelZlogToSlog(level zerolog.Level) slog.Level {
 		return slog.LevelInfo
 	case DebugLevel, TraceLevel, NoLevel:
 		return slog.LevelDebug
+	default:
+		return slog.LevelWarn
 	}
-	// Disabled
-	return 999
 }
 
 func levelSlogToZlog(level slog.Level) zerolog.Level {
@@ -31,8 +31,11 @@ func levelSlogToZlog(level slog.Level) zerolog.Level {
 		return WarnLevel
 	case slog.LevelInfo:
 		return InfoLevel
+	case slog.LevelDebug:
+		return DebugLevel
+	default:
+		return WarnLevel
 	}
-	return DebugLevel
 }
 
 type SLogHandler struct {
@@ -40,7 +43,7 @@ type SLogHandler struct {
 	level       slog.Level
 	noTimestamp bool
 	groups      []string
-	attributes       map[string]any
+	attributes  map[string]any
 }
 
 func cloneAndMergeAttrs(attributes map[string]any, as []slog.Attr) map[string]any {
@@ -59,7 +62,8 @@ func cloneAndMergeAttrs(attributes map[string]any, as []slog.Attr) map[string]an
 
 				v2, ok := m[attr.Key]
 				if ok {
-					m2, _ = v2.(map[string]any)
+					// TODO: type cast result is unchecked
+					m2, _ = v2.(map[string]any) ////nolint:revive
 				}
 
 				m[attr.Key] = cloneAndMergeAttrs(m2, group)
@@ -87,7 +91,7 @@ func (h *SLogHandler) WithAttrs(as []slog.Attr) slog.Handler {
 		logger:      h.logger,
 		noTimestamp: h.noTimestamp,
 		groups:      h.groups,
-		attributes:       attributes,
+		attributes:  attributes,
 	}
 }
 
@@ -100,12 +104,12 @@ func (h *SLogHandler) WithGroup(name string) slog.Handler {
 		logger:      h.logger,
 		noTimestamp: h.noTimestamp,
 		groups:      append(h.groups, name),
-		attributes:       h.attributes,
+		attributes:  h.attributes,
 	}
 }
 
 func (h *SLogHandler) Handle(ctx context.Context, record slog.Record) error {
-	c := h.logger.WithLevel(levelSlogToZlog(record.Level)).Ctx(ctx).CallerSkipFrame(3)
+	c := h.logger.WithLevel(levelSlogToZlog(record.Level)).Ctx(ctx).CallerSkipFrame(DefaultSkipFrameCount)
 	if !h.noTimestamp {
 		c.Time(zerolog.TimestampFieldName, record.Time)
 	}

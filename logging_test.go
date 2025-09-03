@@ -14,7 +14,6 @@ func TestZtoS(t *testing.T) {
 		slog.LevelDebug: zerolog.DebugLevel,
 		slog.LevelInfo:  zerolog.InfoLevel,
 	}
-
 	for slevel, zlevel := range levels {
 		if level := levelZlogToSlog(zlevel); level != slevel {
 			t.Errorf("failure mapping zerolog %s to slog\ngot: %s\nwant: %s", zlevel, level, slevel)
@@ -51,9 +50,7 @@ func TestWithGroup(t *testing.T) {
 }
 
 func Test_setLevel(t *testing.T) {
-
 	level := zerolog.GlobalLevel()
-
 	levels := map[string]zerolog.Level{
 		"fatal":   zerolog.FatalLevel,
 		"panic":   zerolog.PanicLevel,
@@ -62,14 +59,12 @@ func Test_setLevel(t *testing.T) {
 		"info":    zerolog.InfoLevel,
 		"debug":   zerolog.DebugLevel,
 	}
-
 	for levelString, actualLevel := range levels {
 		setLevel(levelString)
 		if zerolog.GlobalLevel() != actualLevel {
 			t.Errorf("%s is %s", levelString, actualLevel.String())
 		}
 	}
-
 	t.Cleanup(func() {
 		zerolog.SetGlobalLevel(level)
 	})

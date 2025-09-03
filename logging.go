@@ -11,6 +11,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Alias to prevent unnecessary imports in go-logging sdk consumer
+type Logging = zerolog.Logger
+
+const (
+	DefaultSkipFrameCount int = 3
+)
+
 var (
 	// Functions
 	Fatal = log.Fatal
@@ -47,8 +54,10 @@ func setLevel(level string) {
 		zerolog.SetGlobalLevel(InfoLevel)
 	case "debug":
 		zerolog.SetGlobalLevel(DebugLevel)
-	default:
+	case "trace":
 		zerolog.SetGlobalLevel(TraceLevel)
+	default:
+		zerolog.SetGlobalLevel(WarnLevel)
 	}
 }
 
@@ -74,6 +83,8 @@ func init() {
 			// NO DEFAULT SPECIFIED IN ADR
 		case "prd":
 			level = "warning"
+		default:
+			// NO DEFAULT SPECIFIED IN ADR
 		}
 	}
 

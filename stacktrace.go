@@ -65,7 +65,7 @@ func (e StackTraceError) Error() string {
 func NewStackTraceError(format string, a ...any) error {
 	return StackTraceError{
 		err:   fmt.Errorf(format, a...),
-		Stack: NewStackTrace(3),
+		Stack: NewStackTrace(DefaultSkipFrameCount),
 	}
 }
 
@@ -90,7 +90,7 @@ type frameInfo = map[string]string
 
 type stackInfo = []frameInfo
 
-func marshalStack(err error) interface{} {
+func marshalStack(err error) any {
 	var stErr StackTraceError
 	if !errors.As(err, &stErr) {
 		return nil
