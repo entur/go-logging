@@ -19,7 +19,7 @@ func levelZlogToSlog(level zerolog.Level) slog.Level {
 	case DebugLevel, TraceLevel, NoLevel:
 		return slog.LevelDebug
 	default:
-		return slog.LevelWarn
+		return disabledSlogLevel
 	}
 }
 
@@ -34,7 +34,7 @@ func levelSlogToZlog(level slog.Level) zerolog.Level {
 	case slog.LevelDebug:
 		return DebugLevel
 	default:
-		return WarnLevel
+		return DebugLevel
 	}
 }
 
@@ -109,7 +109,7 @@ func (h *SLogHandler) WithGroup(name string) slog.Handler {
 }
 
 func (h *SLogHandler) Handle(ctx context.Context, record slog.Record) error {
-	c := h.logger.WithLevel(levelSlogToZlog(record.Level)).Ctx(ctx).CallerSkipFrame(DefaultSkipFrameCount)
+	c := h.logger.WithLevel(levelSlogToZlog(record.Level)).Ctx(ctx).CallerSkipFrame(defaultSkipFrameCount)
 	if !h.noTimestamp {
 		c.Time(zerolog.TimestampFieldName, record.Time)
 	}

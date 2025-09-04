@@ -24,9 +24,9 @@ func Example() {
 	w := logging.NewConsoleWriter(logging.WithNoColor(), logging.WithNoTimestamp())
 
 	logger := logging.New(logging.WithWriter(w), logging.WithLevel(logging.InfoLevel))
-	logger.Info().Msg("Hello from my new child logger!")
+	logger.Warn().Msg("Hello from my new child logger!")
 
-	// Child logger with custom writer and level which won't be logged
+	// Child logger with custom writer and level which won't be logged due to info < warning
 	logger = logging.New(logging.WithWriter(w), logging.WithLevel(logging.WarnLevel))
 	logger.Info().Msg("Hello from my new custom child logger!")
 
@@ -44,9 +44,9 @@ func Example() {
 			),
 		),
 	)
-	slogger.Info("Hello from my new custom slog handler")
+	slogger.Warn("Hello from my new custom slog handler")
 
 	// Output:
-	// INF Hello from my new child logger!
-	// INF Hello from my new custom slog handler some_group={"some_nested_group":{"some_nested_nested_float":100},"some_nested_int":3} some_int=1 some_string=huh
+	// WRN Hello from my new child logger!
+	// WRN Hello from my new custom slog handler some_group={"some_nested_group":{"some_nested_nested_float":100},"some_nested_int":3} some_int=1 some_string=huh
 }
