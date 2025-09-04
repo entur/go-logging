@@ -65,7 +65,7 @@ func (e StackTraceError) Error() string {
 func NewStackTraceError(format string, a ...any) error {
 	return StackTraceError{
 		err:   fmt.Errorf(format, a...),
-		Stack: NewStackTrace(DefaultSkipFrameCount),
+		Stack: NewStackTrace(defaultSkipFrameCount),
 	}
 }
 
