@@ -3,6 +3,7 @@
 ## Start using the SDK
 
 The default log level will be derived from the `LOG_LEVEL` or `COMMON_ENV` environment variables if defined, or set to `warning` if not. The former values take priority over the latter. Valid values are:
+
 * `fatal`
 * `panic`
 * `error`
@@ -12,5 +13,16 @@ The default log level will be derived from the `LOG_LEVEL` or `COMMON_ENV` envir
 * `trace`
 
 ## Minimal example
+
+```golang
+import (
+  "github.com/entur/go-logging"
+)
+
+func main(){
+  logger := logging.New()
+  logger.Warn().Msg("Starting app")
+}
+```
 
 See `./logging_test.go` for a complete test.
