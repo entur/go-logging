@@ -19,7 +19,7 @@ func levelZlogToSlog(level zerolog.Level) slog.Level {
 	case DebugLevel, TraceLevel, NoLevel:
 		return slog.LevelDebug
 	default:
-		return slog.LevelWarn
+		return DisabledSlogLevel
 	}
 }
 

@@ -15,7 +15,8 @@ import (
 type Logging = zerolog.Logger
 
 const (
-	DefaultSkipFrameCount int = 3
+	DefaultSkipFrameCount int        = 3
+	DisabledSlogLevel     slog.Level = 999 // slog.Level(zerolog.Disabled)
 )
 
 var (
