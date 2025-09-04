@@ -14,6 +14,7 @@ import (
 // Alias to prevent unnecessary imports in go-logging sdk consumer
 type Logging = zerolog.Logger
 
+// Constants
 const (
 	defaultSkipFrameCount int        = 3
 	disabledSlogLevel     slog.Level = 999 // slog.Level(zerolog.Disabled)
