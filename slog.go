@@ -34,7 +34,7 @@ func levelSlogToZlog(level slog.Level) zerolog.Level {
 	case slog.LevelDebug:
 		return DebugLevel
 	default:
-		return WarnLevel
+		return DebugLevel
 	}
 }
 
