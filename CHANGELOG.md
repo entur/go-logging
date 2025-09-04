@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/entur/go-logging/compare/v1.5.0...v1.5.1) (2025-09-04)
+
+
+### Bug Fixes
+
+* Set warning as default logging level ([#23](https://github.com/entur/go-logging/issues/23)) ([9cd5ead](https://github.com/entur/go-logging/commit/9cd5ead5e567779407f08e5ba035eab161dec191))
+
 ## [1.5.0](https://github.com/entur/go-logging/compare/v1.4.0...v1.5.0) (2025-05-28)
 
 
