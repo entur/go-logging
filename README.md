@@ -1,6 +1,6 @@
 # go-logging
 
-Go-Loging is intended as a simple-to-use SDK for high-performance logging in GCP and locally. It supports caller location identification, optional stacktraces, colorful logging and more.
+Go-Logging is intended as a simple-to-use SDK for high-performance logging in GCP and locally. It supports caller location identification, optional stacktraces, colorful logging and more.
 
 ## Quickstart
 
@@ -8,13 +8,6 @@ Go-Loging is intended as a simple-to-use SDK for high-performance logging in GCP
 ```sh
 go get github.com/entur/go-logging
 go mod tidy
-```
-
-### Import 
-```golang
-import (
-  "github.com/entur/go-logging"
-)
 ```
 
 ### Basic Usage 
@@ -26,6 +19,9 @@ import (
 func main() {
   // Global logger
   logging.Warn().Msg("Starting up my application")
+
+  // Formatted logging
+  logging.Warn().Msgf("Starting my %s", "application")
 
   // Local logger
   logger := logging.New()
