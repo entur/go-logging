@@ -8,35 +8,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func levelZlogToSlog(level zerolog.Level) slog.Level {
-	switch level {
-	case FatalLevel, PanicLevel, ErrorLevel:
-		return slog.LevelError
-	case WarnLevel:
-		return slog.LevelWarn
-	case InfoLevel:
-		return slog.LevelInfo
-	case DebugLevel, TraceLevel, NoLevel:
-		return slog.LevelDebug
-	default:
-		return disabledSlogLevel
-	}
-}
-
-func levelSlogToZlog(level slog.Level) zerolog.Level {
-	switch level {
-	case slog.LevelError:
-		return ErrorLevel
-	case slog.LevelWarn:
-		return WarnLevel
-	case slog.LevelInfo:
-		return InfoLevel
-	case slog.LevelDebug:
-		return DebugLevel
-	default:
-		return DebugLevel
-	}
-}
+const defaultSkipFrameCount int = 3
 
 type SLogHandler struct {
 	logger      *zerolog.Logger
@@ -62,11 +34,12 @@ func cloneAndMergeAttrs(attributes map[string]any, as []slog.Attr) map[string]an
 
 				v2, ok := m[attr.Key]
 				if ok {
-					// TODO: type cast result is unchecked
-					m2, _ = v2.(map[string]any) ////nolint:revive
+					m2, ok = v2.(map[string]any)
 				}
 
-				m[attr.Key] = cloneAndMergeAttrs(m2, group)
+				if ok {
+					m[attr.Key] = cloneAndMergeAttrs(m2, group)
+				}
 			}
 		} else {
 			m[attr.Key] = v.Any()
@@ -85,7 +58,7 @@ func (h *SLogHandler) WithAttrs(as []slog.Attr) slog.Handler {
 	if len(attributes) == 0 {
 		return h
 	}
-	delete(attributes, "timestamp")
+	delete(attributes, zerolog.TimestampFieldName)
 
 	return &SLogHandler{
 		logger:      h.logger,
@@ -109,7 +82,7 @@ func (h *SLogHandler) WithGroup(name string) slog.Handler {
 }
 
 func (h *SLogHandler) Handle(ctx context.Context, record slog.Record) error {
-	c := h.logger.WithLevel(levelSlogToZlog(record.Level)).Ctx(ctx).CallerSkipFrame(defaultSkipFrameCount)
+	c := h.logger.WithLevel(convertSLogLevelToZLog(record.Level)).Ctx(ctx).CallerSkipFrame(defaultSkipFrameCount)
 	if !h.noTimestamp {
 		c.Time(zerolog.TimestampFieldName, record.Time)
 	}

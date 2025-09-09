@@ -1,71 +1,52 @@
-package logging
+package logging_test
 
 import (
 	"log/slog"
-	"testing"
 
-	"github.com/rs/zerolog"
+	"github.com/entur/go-logging"
 )
 
-func TestZtoS(t *testing.T) {
-	levels := map[slog.Level]zerolog.Level{
-		slog.LevelError: zerolog.ErrorLevel,
-		slog.LevelWarn:  zerolog.WarnLevel,
-		slog.LevelDebug: zerolog.DebugLevel,
-		slog.LevelInfo:  zerolog.InfoLevel,
-	}
-	for slevel, zlevel := range levels {
-		if level := levelZlogToSlog(zlevel); level != slevel {
-			t.Errorf("failure mapping zerolog %s to slog\ngot: %s\nwant: %s", zlevel, level, slevel)
-		}
-	}
-}
+func Example() {
+	// Default global logger
+	// logging.Info().Msg("Hello from the global logger!")
 
-func TestStoZ(t *testing.T) {
-	levels := map[zerolog.Level]slog.Level{
-		zerolog.ErrorLevel: slog.LevelError,
-		zerolog.WarnLevel:  slog.LevelWarn,
-		zerolog.DebugLevel: slog.LevelDebug,
-	}
+	// New child logger
+	// logger := logging.New()
+	// err := fmt.Errorf("oh no, an error")
+	// logger.Error().Err(err).Msg("An internal error occurred")
 
-	for zlevel, slevel := range levels {
-		if level := levelSlogToZlog(slevel); level != zlevel {
-			t.Errorf("failure mapping slog %s to zerolog\ngot: %s\nwant: %s", slevel, level, zlevel)
-		}
-	}
-}
+	// New child logger with stacktraced error
+	// logger := logging.New()
+	// err := logging.NewStackTraceError("oh no, an error")
+	// logger.Error().Stack().Err(err).Msg("An internal error occurred!")
 
-func TestWithGroup(t *testing.T) {
-	h := NewSlogHandler()
+	// Child logger with custom writer
+	w := logging.NewConsoleWriter(logging.WithNoColor(), logging.WithNoTimestamp())
+
+	logger := logging.New(logging.WithWriter(w), logging.WithLevel(logging.InfoLevel))
+	logger.Warn().Msg("Hello from my new child logger!")
+
+	// Child logger with custom writer and level which won't be logged due to info < warning
+	logger = logging.New(logging.WithWriter(w), logging.WithLevel(logging.WarnLevel))
+	logger.Info().Msg("Hello from my new custom child logger!")
+
+	// Slog logger with zerolog handler. Inefficient, so should only be used sparingly
+	// if some other SDK is able to take a custom slog handler.
+	h := logging.NewSlogHandler(logging.WithWriter(w))
 	slogger := slog.New(h)
+	slogger = slogger.With(
+		slog.Int("some_int", 1),
+		slog.String("some_string", "huh"),
+		slog.Group("some_group",
+			slog.Int("some_nested_int", 3),
+			slog.Group("some_nested_group",
+				slog.Float64("some_nested_nested_float", 100.0),
+			),
+		),
+	)
+	slogger.Warn("Hello from my new custom slog handler")
 
-	slog2 := slogger.WithGroup("")
-	if slog2 != slogger {
-		t.Error("Empty group is ignored")
-	}
-	slog3 := slogger.WithGroup("MyGroup")
-	if slog3 == slogger {
-		t.Error("Group is new instance")
-	}
-}
-
-func Test_setLevel(t *testing.T) {
-	level := zerolog.GlobalLevel()
-	levels := map[string]zerolog.Level{
-		"fatal":   zerolog.FatalLevel,
-		"panic":   zerolog.PanicLevel,
-		"error":   zerolog.ErrorLevel,
-		"warning": zerolog.WarnLevel,
-		"info":    zerolog.InfoLevel,
-		"debug":   zerolog.DebugLevel,
-	}
-	for levelString, actualLevel := range levels {
-		setLevel(levelString)
-		if zerolog.GlobalLevel() != actualLevel {
-			t.Errorf("%s is %s", levelString, actualLevel.String())
-		}
-	}
-	t.Cleanup(func() {
-		zerolog.SetGlobalLevel(level)
-	})
+	// Output:
+	// WRN Hello from my new child logger!
+	// WRN Hello from my new custom slog handler some_group={"some_nested_group":{"some_nested_nested_float":100},"some_nested_int":3} some_int=1 some_string=huh
 }

@@ -4,20 +4,21 @@ import (
 	"io"
 	"log/slog"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
-// Alias to prevent unnecessary imports in go-logging sdk consumer
-type Logging = zerolog.Logger
+// -----------------------
+// Logging <-> Zerolog aliases
+// -----------------------
 
-// Constants
-const (
-	defaultSkipFrameCount int        = 3
-	disabledSlogLevel     slog.Level = 999 // slog.Level(zerolog.Disabled)
+type (
+	// Types
+	ConsoleWriter = zerolog.ConsoleWriter
+	Level         = zerolog.Level
+	Logger        = zerolog.Logger
 )
 
 var (
@@ -42,26 +43,9 @@ var (
 	Disabled   = zerolog.Disabled
 )
 
-func setLevel(level string) {
-	switch strings.ToLower(level) {
-	case "fatal":
-		zerolog.SetGlobalLevel(FatalLevel)
-	case "panic":
-		zerolog.SetGlobalLevel(PanicLevel)
-	case "error":
-		zerolog.SetGlobalLevel(ErrorLevel)
-	case "warning":
-		zerolog.SetGlobalLevel(WarnLevel)
-	case "info":
-		zerolog.SetGlobalLevel(InfoLevel)
-	case "debug":
-		zerolog.SetGlobalLevel(DebugLevel)
-	case "trace":
-		zerolog.SetGlobalLevel(TraceLevel)
-	default:
-		zerolog.SetGlobalLevel(WarnLevel)
-	}
-}
+// -----------------------
+// Initialize and Prepare logging library for GCP
+// -----------------------
 
 func init() {
 	// Configure zerolog for GCP logging
@@ -71,32 +55,29 @@ func init() {
 	zerolog.TimeFieldFormat = time.RFC3339Nano
 	zerolog.ErrorStackMarshaler = marshalStack
 
-	// Set log level
+	// Get log level
 	level := os.Getenv("LOG_LEVEL")
 	if level == "" {
-		// If no default LOG_LEVEL value is set, try to derive it from our runtime environment.
-		// * See ADR https://enturas.atlassian.net/wiki/spaces/eat/pages/5318344894/2022-10-31+All+services+must+have+a+balanced+log+level
-		// * See COMMON_ENV in Helm Chart https://github.com/entur/helm-charts
-		env := os.Getenv("COMMON_ENV")
-		switch strings.ToLower(env) {
-		case "dev":
-			// NO DEFAULT SPECIFIED IN ADR
-		case "tst":
-			// NO DEFAULT SPECIFIED IN ADR
-		case "prd":
-			level = "warning"
-		default:
-			// NO DEFAULT SPECIFIED IN ADR
-		}
+		level = "warning" // Default log level is set to warning as per the ADR spec
 	}
 
-	setLevel(level)
+	// NOTE:
+	// We set the global zerolog level by overriding the default global logger in zerolog.
+	// Do not call zerolog.SetGlobalLevel(), as that will make it impossible to raise the log level locally in other loggers!!
+	logger := log.Logger.Level(convertStrToZLogLevel(level))
+	logger = logger.With().Stack().Logger()
+	log.Logger = logger
 }
 
+// -----------------------
+// Logging Configuration
+// -----------------------
+
 type Config struct {
-	w           io.Writer
-	level       *zerolog.Level
-	noTimestamp bool
+	w            io.Writer
+	level        *zerolog.Level
+	noStackTrace bool
+	noTimestamp  bool
 	// ConsoleWriter
 	noColor       bool
 	fieldsExclude []string
@@ -127,6 +108,12 @@ func WithNoTimestamp() Option {
 	}
 }
 
+func WithNoStackTrace() Option {
+	return func(c *Config) {
+		c.noStackTrace = true
+	}
+}
+
 func WithNoColor() Option {
 	return func(c *Config) {
 		c.noColor = true
@@ -139,13 +126,13 @@ func WithExcludeFields(fields ...string) Option {
 	}
 }
 
-func WithLevel(level zerolog.Level) Option {
+func WithLevel(level Level) Option {
 	return func(c *Config) {
 		c.level = &level
 	}
 }
 
-func New(opts ...Option) zerolog.Logger {
+func New(opts ...Option) Logger {
 	cfg := &Config{}
 	for _, opt := range opts {
 		opt(cfg)
@@ -160,6 +147,9 @@ func New(opts ...Option) zerolog.Logger {
 	if !cfg.noTimestamp {
 		ctx = ctx.Timestamp()
 	}
+	if !cfg.noStackTrace {
+		ctx = ctx.Stack()
+	}
 
 	logger := ctx.Logger()
 	if cfg.level != nil {
@@ -169,7 +159,7 @@ func New(opts ...Option) zerolog.Logger {
 	return logger
 }
 
-func NewConsoleWriter(opts ...Option) zerolog.ConsoleWriter {
+func NewConsoleWriter(opts ...Option) ConsoleWriter {
 	cfg := &Config{}
 	for _, opt := range opts {
 		opt(cfg)
@@ -208,7 +198,7 @@ func NewSlogHandler(opts ...Option) slog.Handler {
 
 	return &SLogHandler{
 		logger:      &logger,
-		level:       levelZlogToSlog(logger.GetLevel()),
+		level:       convertZLogLevelToSLog(logger.GetLevel()),
 		noTimestamp: cfg.noTimestamp,
 	}
 }
