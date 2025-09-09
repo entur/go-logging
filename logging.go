@@ -65,7 +65,7 @@ func init() {
 	// We set the global zerolog level by overriding the default global logger in zerolog.
 	// Do not call zerolog.SetGlobalLevel(), as that will make it impossible to raise the log level locally in other loggers!!
 	logger := log.Logger.Level(convertStrToZLogLevel(level))
-	logger = logger.With().Stack().Logger()
+	logger = logger.With().Caller().Stack().Logger()
 	log.Logger = logger
 }
 
@@ -76,7 +76,7 @@ func init() {
 type Config struct {
 	w            io.Writer
 	level        *zerolog.Level
-	caller       bool
+	noCaller       bool
 	noStackTrace bool
 	noTimestamp  bool
 	// ConsoleWriter
@@ -109,6 +109,12 @@ func WithNoTimestamp() Option {
 	}
 }
 
+func WithNoCaller() Option {
+	return func(c *Config) {
+		c.noCaller = true
+	}
+}
+
 func WithNoStackTrace() Option {
 	return func(c *Config) {
 		c.noStackTrace = true
@@ -124,12 +130,6 @@ func WithNoColor() Option {
 func WithExcludeFields(fields ...string) Option {
 	return func(c *Config) {
 		c.fieldsExclude = fields
-	}
-}
-
-func WithCaller() Option {
-	return func(c *Config) {
-		c.caller = true
 	}
 }
 
@@ -154,11 +154,11 @@ func New(opts ...Option) Logger {
 	if !cfg.noTimestamp {
 		ctx = ctx.Timestamp()
 	}
+	if !cfg.noCaller {
+		ctx = ctx.Caller()
+	}
 	if !cfg.noStackTrace {
 		ctx = ctx.Stack()
-	}
-	if cfg.caller {
-		ctx = ctx.Caller()
 	}
 
 	logger := ctx.Logger()

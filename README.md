@@ -97,7 +97,7 @@ func main() {
 ```
 
 ### Calling Location Info
-When logging similar errors and messages at multiple locations, it can be useful to have the ability to identify the original file and call location. In the Go-Logging SDK this can be done by just calling the `Caller()` function on a logging event before dispatching it for sending, or adding it as a default setting to an instanced logger.
+The Go-Logging SDK will automatically include the caller info when you use the global logging functions, or create a new instanced logger. If you want to disable the feature, you can prove the `WithNoCaller()` option to the logging constructor.
 
 ```go
 import (
@@ -105,13 +105,15 @@ import (
 )
 
 func main() {
-  // When global logging
-  logging.Debug().Caller().Msg("My location is here!")
+  // Disable caller info in child logger
+  logger := logging.New(
+    logging.WithNoCaller()
+  )
 
-  // Setup local child logger to include caller by-default
-    logger = logging.New(
-      logging.WithCaller()
-    )
+  logger.Debug().Msg("This log won't include caller info")
+
+  // You can still include caller info individually, even if it is disabled by default
+  logger.Debug().Caller("This log will include caller info")
 }
 ```
 

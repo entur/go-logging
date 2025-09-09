@@ -23,11 +23,11 @@ func Example() {
 	// Child logger with custom writer
 	w := logging.NewConsoleWriter(logging.WithNoColor(), logging.WithNoTimestamp())
 
-	logger := logging.New(logging.WithWriter(w), logging.WithLevel(logging.InfoLevel))
+	logger := logging.New(logging.WithWriter(w), logging.WithLevel(logging.InfoLevel), logging.WithNoCaller())
 	logger.Warn().Msg("Hello from my new child logger!")
 
 	// Child logger with custom writer and level which won't be logged due to info < warning
-	logger = logging.New(logging.WithWriter(w), logging.WithLevel(logging.WarnLevel))
+	logger = logging.New(logging.WithWriter(w), logging.WithLevel(logging.WarnLevel), logging.WithNoCaller())
 	logger.Info().Msg("Hello from my new custom child logger!")
 
 	// Slog logger with zerolog handler. Inefficient, so should only be used sparingly
