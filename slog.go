@@ -34,12 +34,10 @@ func cloneAndMergeAttrs(attributes map[string]any, as []slog.Attr) map[string]an
 
 				v2, ok := m[attr.Key]
 				if ok {
-					m2, ok = v2.(map[string]any)
+					m2, _ = v2.(map[string]any) // nolint:revive
 				}
 
-				if ok {
-					m[attr.Key] = cloneAndMergeAttrs(m2, group)
-				}
+				m[attr.Key] = cloneAndMergeAttrs(m2, group)
 			}
 		} else {
 			m[attr.Key] = v.Any()

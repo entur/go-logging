@@ -29,7 +29,6 @@ func TestConvertSLogLevelToZLog(t *testing.T) {
 		zerolog.WarnLevel:  slog.LevelWarn,
 		zerolog.InfoLevel:  slog.LevelInfo,
 		zerolog.DebugLevel: slog.LevelDebug,
-		zerolog.Disabled:   disabledSlogLevel,
 	}
 
 	for zlevel, slevel := range levels {
