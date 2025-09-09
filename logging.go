@@ -76,7 +76,7 @@ func init() {
 type Config struct {
 	w            io.Writer
 	level        *zerolog.Level
-	noCaller       bool
+	noCaller     bool
 	noStackTrace bool
 	noTimestamp  bool
 	// ConsoleWriter
