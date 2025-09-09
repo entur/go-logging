@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/entur/go-logging/compare/v1.5.1...v1.6.0) (2025-09-09)
+
+
+### Features
+
+* Added support for stack traces by default and updated README ([#27](https://github.com/entur/go-logging/issues/27)) ([8272f0c](https://github.com/entur/go-logging/commit/8272f0cc0445b9d08fb6588ea47f228e7cd30fa9))
+
 ## [1.5.1](https://github.com/entur/go-logging/compare/v1.5.0...v1.5.1) (2025-09-04)
 
 
