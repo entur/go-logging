@@ -76,6 +76,7 @@ func init() {
 type Config struct {
 	w            io.Writer
 	level        *zerolog.Level
+	caller       bool
 	noStackTrace bool
 	noTimestamp  bool
 	// ConsoleWriter
@@ -126,6 +127,12 @@ func WithExcludeFields(fields ...string) Option {
 	}
 }
 
+func WithCaller() Option {
+	return func(c *Config) {
+		c.caller = true
+	}
+}
+
 func WithLevel(level Level) Option {
 	return func(c *Config) {
 		c.level = &level
@@ -149,6 +156,9 @@ func New(opts ...Option) Logger {
 	}
 	if !cfg.noStackTrace {
 		ctx = ctx.Stack()
+	}
+	if cfg.caller {
+		ctx = ctx.Caller()
 	}
 
 	logger := ctx.Logger()
