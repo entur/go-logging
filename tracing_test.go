@@ -62,8 +62,8 @@ func TestTraceHookSampled(t *testing.T) {
 	if got := out[gcpSpanIDKey]; got != testSpanHex {
 		t.Errorf("%s = %v, want %q", gcpSpanIDKey, got, testSpanHex)
 	}
-	if got, ok := out[gcpTraceSampledKey]; !ok || got != true {
-		t.Errorf("%s = %v (present=%v), want true", gcpTraceSampledKey, got, ok)
+	if sampled, ok := out[gcpTraceSampledKey].(bool); !ok || !sampled {
+		t.Errorf("%s = %v (bool=%v), want true", gcpTraceSampledKey, out[gcpTraceSampledKey], ok)
 	}
 }
 
@@ -120,8 +120,8 @@ func TestSlogHandlerAddsTraceFields(t *testing.T) {
 	if got := out[gcpSpanIDKey]; got != testSpanHex {
 		t.Errorf("%s = %v, want %q", gcpSpanIDKey, got, testSpanHex)
 	}
-	if got, ok := out[gcpTraceSampledKey]; !ok || got != true {
-		t.Errorf("%s = %v (present=%v), want true", gcpTraceSampledKey, got, ok)
+	if sampled, ok := out[gcpTraceSampledKey].(bool); !ok || !sampled {
+		t.Errorf("%s = %v (bool=%v), want true", gcpTraceSampledKey, out[gcpTraceSampledKey], ok)
 	}
 }
 
