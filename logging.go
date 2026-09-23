@@ -66,6 +66,7 @@ func init() {
 	// Do not call zerolog.SetGlobalLevel(), as that will make it impossible to raise the log level locally in other loggers!!
 	logger := log.Logger.Level(convertStrToZLogLevel(level))
 	logger = logger.With().Caller().Stack().Logger()
+	logger = logger.Hook(gcpTraceHook{})
 	log.Logger = logger
 }
 
@@ -79,6 +80,7 @@ type Config struct {
 	noCaller     bool
 	noStackTrace bool
 	noTimestamp  bool
+	noTrace      bool
 	// ConsoleWriter
 	noColor       bool
 	fieldsExclude []string
@@ -118,6 +120,14 @@ func WithNoCaller() Option {
 func WithNoStackTrace() Option {
 	return func(c *Config) {
 		c.noStackTrace = true
+	}
+}
+
+// WithNoTrace disables automatic enrichment of logs with the Google Cloud
+// trace/span fields derived from the OpenTelemetry span context.
+func WithNoTrace() Option {
+	return func(c *Config) {
+		c.noTrace = true
 	}
 }
 
@@ -165,6 +175,9 @@ func New(opts ...Option) Logger {
 	if cfg.level != nil {
 		logger = logger.Level(*cfg.level)
 	}
+	if !cfg.noTrace {
+		logger = logger.Hook(gcpTraceHook{})
+	}
 
 	return logger
 }
@@ -204,6 +217,9 @@ func NewSlogHandler(opts ...Option) slog.Handler {
 	logger := zerolog.New(w)
 	if cfg.level != nil {
 		logger = logger.Level(*cfg.level)
+	}
+	if !cfg.noTrace {
+		logger = logger.Hook(gcpTraceHook{})
 	}
 
 	return &SLogHandler{
