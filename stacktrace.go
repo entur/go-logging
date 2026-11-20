@@ -74,16 +74,26 @@ type joinError interface {
 	Unwrap() []error
 }
 
-// Extract the underlying error array from joined errors
+// Extract the underlying error array from the first joined error in the chain.
+// The chain is not searched past a StackTraceError, which then reports its own stack.
 func joinedErrs(err error) []error {
-	var errs []error
+	for err != nil {
+		if joinErr, ok := err.(joinError); ok {
+			return joinErr.Unwrap()
+		}
 
-	joinErr, ok := err.(joinError)
-	if ok {
-		errs = joinErr.Unwrap()
+		if _, ok := err.(StackTraceError); ok {
+			return nil
+		}
+
+		wrapper, ok := err.(interface{ Unwrap() error })
+		if !ok {
+			return nil
+		}
+		err = wrapper.Unwrap()
 	}
 
-	return errs
+	return nil
 }
 
 type frameInfo = map[string]string

@@ -44,9 +44,19 @@ func TestConvertStrToZLogLevel(t *testing.T) {
 		"panic":   zerolog.PanicLevel,
 		"error":   zerolog.ErrorLevel,
 		"warning": zerolog.WarnLevel,
+		"warn":    zerolog.WarnLevel,
+		"wrn":     zerolog.WarnLevel,
 		"info":    zerolog.InfoLevel,
 		"debug":   zerolog.DebugLevel,
 		"trace":   zerolog.TraceLevel,
+		"WARN":    zerolog.WarnLevel,
+		"ftl":     zerolog.FatalLevel,
+		"pnc":     zerolog.PanicLevel,
+		"err":     zerolog.ErrorLevel,
+		"inf":     zerolog.InfoLevel,
+		"dbg":     zerolog.DebugLevel,
+		"trc":     zerolog.TraceLevel,
+		"unknown": zerolog.TraceLevel,
 	}
 
 	for strlevel, zlevel := range levels {
