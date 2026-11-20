@@ -41,6 +41,9 @@ linters:
           disabled: true
         - name: function-length
           disabled: true
+        - name: unhandled-error # strings.Builder writes never return an error
+          arguments:
+            - "strings.Builder.WriteString"
 formatters:
   enable:
     - gofmt

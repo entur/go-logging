@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"runtime"
+	"strconv"
 	"strings"
 )
 
@@ -19,7 +20,7 @@ func (s *StackTrace) String() string {
 		builder.WriteString("\n\t")
 		builder.WriteString(frame.File)
 		builder.WriteString(":")
-		builder.WriteString(fmt.Sprintf("%d", frame.Line))
+		builder.WriteString(strconv.Itoa(frame.Line))
 		builder.WriteString("\n")
 	}
 
