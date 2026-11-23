@@ -220,3 +220,33 @@ func TestMarshalStack(t *testing.T) {
 		})
 	}
 }
+
+func TestMarshalStackWrappedJoin(t *testing.T) {
+	a := NewStackTraceError("a")
+	b := NewStackTraceError("b")
+
+	tests := []struct {
+		title string
+		err   error
+		want  int
+	}{
+		{"wrapped join", fmt.Errorf("wrapped: %w", errors.Join(a, b)), 2},
+		{"doubly wrapped join", fmt.Errorf("outer: %w", fmt.Errorf("inner: %w", errors.Join(a, b))), 2},
+		{"multiple %w", fmt.Errorf("multi: %w, %w", a, b), 2},
+		{"wrapped multiple %w", fmt.Errorf("outer: %w", fmt.Errorf("multi: %w, %w", a, b)), 2},
+		{"wrapped single stack error", fmt.Errorf("wrapped: %w", a), 1},
+		{"stack error wrapping join keeps its own stack", NewStackTraceError("outer: %w", errors.Join(a, b)), 1},
+	}
+
+	for _, test := range tests {
+		t.Run(test.title, func(t *testing.T) {
+			stackInfos, ok := marshalStack(test.err).([]stackInfo)
+			if !ok {
+				t.Fatalf("marshalled result is of the wrong type: %T", marshalStack(test.err))
+			}
+			if len(stackInfos) != test.want {
+				t.Errorf("incorrect number of stacks\ngot: %d\nwant: %d", len(stackInfos), test.want)
+			}
+		})
+	}
+}

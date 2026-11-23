@@ -17,7 +17,7 @@ func convertStrToZLogLevel(level string) zerolog.Level {
 		return PanicLevel
 	case "error", "err":
 		return ErrorLevel
-	case "warning", "wrn":
+	case "warning", "warn", "wrn":
 		return WarnLevel
 	case "info", "inf":
 		return InfoLevel
