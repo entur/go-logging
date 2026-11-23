@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/entur/go-logging/compare/v1.6.0...v1.6.1) (2026-11-23)
+
+
+### Bug Fixes
+
+* slog record attrs, groups and levels; stacks of wrapped joins; LOG_LEVEL=warn ([#52](https://github.com/entur/go-logging/issues/52)) ([c538481](https://github.com/entur/go-logging/commit/c538481f144122208a2296284db4280f816360a7))
+
 ## [1.6.0](https://github.com/entur/go-logging/compare/v1.5.1...v1.6.0) (2025-09-09)
 
 
